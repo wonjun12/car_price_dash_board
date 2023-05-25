@@ -32,7 +32,10 @@ def run_app_ml():
             # 코렙의 최신버전 1.2.0 > conda 버전 1.1.0
         y_pred = regressor.predict(new_data) # 예측 데이터
         #print(y_pred)
+        if y_pred[0] < 0:
+            st.error('정상적으로 예측할수 없습니다.')
+        else  :
+            st.success(f'{int(y_pred)}$ 차량 구매 가능!')
         
-        st.success(f'{int(y_pred)}$ 차량 구매 가능!')
 
     
