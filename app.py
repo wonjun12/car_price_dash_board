@@ -11,7 +11,7 @@ from app_module.app_ml import run_app_ml
 
 def main():
     st.title('자동차 가격 예측 앱')
-    st.text('asasfdklsgdkjlgsdljkgsdjklsgjkslgsdjklsgdkjgsdjklgsdjklgsdjkl')
+    st.text('자동 배포 처리된 앱입니다.')
 
     menu = ['Home', 'EDA', 'ML']
     choice = st. sidebar.selectbox('메뉴', menu)
