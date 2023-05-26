@@ -1,0 +1,75 @@
+AWS EC2
+    - 인스턴스 가상 서버 만들기
+    - pip install streamlit
+    - pip install plotly==5.14.1
+    - mkdir Github 만들기
+    - Git 설치
+      - sudo yum install git
+    - git clone
+      - streamlit run app.py
+    - 서버를 열어도 들어갈수가 없다. port를 열어야한다.
+      - aws ec2의 보안에 들어가기
+       - 인바운드 규칙 : 외부에서 들어오는 것
+       - 아웃바운드 규칙 : 내부에서 외부로 보내는 것
+     - 인바운드 규칙에 앱 데시보드 포트를 추가한다. (현재는 8501)
+
+    - nohup streamlit run app.py &
+      - nohup : 터미널 종료 후에도 동작하라.
+      - & : 백그라운드에서 작동하라.
+
+    - 버전 업그레이드 (수동)
+     - 로컬의 코드를 한번 수정 하고 테스트한다. Unit test
+     - 커밋, 푸쉬
+     - 서버에서 git pull / cat으로 확인 가능 (streamlit가 자동으로 업데이트해줌)
+
+    - 서버 git pull 자동 Git Actions CI/CD 방법
+       - winodws의 경우 ec2 키페어(PPK)의 확장자를 .pem으로 변경해야 한다. 
+          (github에 ec2 접속할 권한이 필요함)
+            = PuTTY Key Gen 파일 - Load - EC2 키페어 (ppk) 선택
+              => Conversions 옵션 - Export OpenSSH Key - 확장자 .pem 으로 저장
+       - github - 해당 프로젝트의 레파지토리 Settings - 좌측 메뉴 Secrets and variables - Actions - new replository secret 클릭
+            => name : SSH_PRIVATE_KEY, Secret : 방금 만든 .pem파일의 내용을 넣는다.
+            => name : HOST, Secret : EC2 IP주소 (3.39.222.171)
+            => name : USER, Secret : EC2 user (ec2-user)
+      - github - 해당 프로젝트의 레파지토리 Actions - (set up a workflow yourself)
+          - (확장자 .yml은 보통 환경설정에 관련해서 많이 사용함)
+            => 내용 작성하면 자동으로 ec2에서 자동으로 pull하게 됨
+=============================================
+name: deploy
+
+# Controls when the workflow will run
+on: # 이럴때 실행 해달라
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push: # push를 할때 
+    branches: #어떤것이?
+      - main #main이
+   # main의 정보에 push될때마다 실행을 해달라
+
+# 실행
+jobs:
+  SSH:
+    runs-on: ubuntu-latest # 우분투 최신버전으로 컴퓨터를 준비하라 ()
+
+    steps:
+      - uses: actions/checkout@v3 # 레파지토리 참고하라
+      - name: ssh to ec2 # ec2에 접속하라.
+        uses: appleboy/ssh-action@master # 접속 제공 코드
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }} # 키페어 필요
+          host: ${{ secrets.HOST }} # ip
+          username: ${{ secrets.USER }} # 해당 유저 접속 
+          script: | # 실행 할 코드
+            cd Github/car_price_dash_board/  #경로 이동 (실제 존재하는 경로로 이동해야한다.)
+            git pull # git pull
+  
+  # 깃허브 레파지토리가 프라이빗으로 만들어져 있을때. 
+  # git pull https://${{ secrets.GIT_USER }}:${{ secrets.GIT_PASSWORD }}@github.com/blockenters/streamlit_kmeans.git
+===============================================
+    => 이후 로컬 작업 서버에서 git을 최신화로 다운받는다. (작업 서버 git pull)
+
+
+
+
+
+    - Agile(애자일) 개발 방식?
+      - 짧은 주기의 개발단위를 반복하여 하나의 큰 프로젝트를 완성해 나가는방식
